@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TestAccessibilityService</string>
+    <string name="auto_sign">自动签到</string>
+</resources>
