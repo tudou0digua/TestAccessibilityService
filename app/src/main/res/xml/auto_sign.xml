@@ -5,3 +5,4 @@
     android:description="@string/auto_sign"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="1000"/>
+    <!--android:packageNames="com.youku.phone, com.cb.qiangqiang2, com.android.systemui, com.baozoumanhua.android, com.umetrip.android.msky.app, com.taobao.taobao, com.cb.registerbyhand"/>-->

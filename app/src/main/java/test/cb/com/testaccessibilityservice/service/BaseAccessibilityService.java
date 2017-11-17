@@ -29,6 +29,10 @@ public class BaseAccessibilityService extends AccessibilityService {
         return mContext;
     }
 
+    public enum Orientation {
+        UP,
+        DOWN
+    }
     public void init(Context context) {
         mContext = context.getApplicationContext();
         mAccessibilityManager = (AccessibilityManager) mContext.getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -41,15 +45,26 @@ public class BaseAccessibilityService extends AccessibilityService {
         return mInstance;
     }
 
-    public void recycle(AccessibilityNodeInfo info) {
+    public void printAllView(String... tag) {
+        AccessibilityNodeInfo accessibilityNodeInfo = getRootInActiveWindow();
+        if (accessibilityNodeInfo == null) {
+            return;
+        }
+        recycle(accessibilityNodeInfo);
+    }
+
+    public void recycle(AccessibilityNodeInfo info, String... tag) {
         if (info.getChildCount() == 0) {
-            Log.i(TAG, "child widget----------------------------" + info.getClassName());
-            Log.i(TAG, "showDialog:" + info.canOpenPopup());
-            Log.i(TAG, "Text：" + info.getText());
-//            if (info.getText() != null && info.getText().toString().contains("我的任务")) {
-//                performViewClick(info);
-//            }
-            Log.i(TAG, "windowId:" + info.getWindowId());
+            String tags;
+            if (tag.length == 0) {
+                tags = TAG;
+            } else {
+                tags = tag[0];
+            }
+            Log.i(tags, "child widget----------------------------" + info.getClassName());
+            Log.i(tags, "showDialog:" + info.canOpenPopup());
+            Log.i(tags, "Text：" + info.getText());
+            Log.i(tags, "windowId:" + info.getWindowId());
         } else {
             for (int i = 0; i < info.getChildCount(); i++) {
                 if (info.getChild(i) != null) {
@@ -59,30 +74,37 @@ public class BaseAccessibilityService extends AccessibilityService {
         }
     }
 
-    public AccessibilityNodeInfo findViewByTextEnhance(String text) {
-        AccessibilityNodeInfo info;
-        info = findViewByText(text);
+    public AccessibilityNodeInfo findViewByTextEnhance(String text, String... exceptStrs) {
+        AccessibilityNodeInfo info = null;
+        if (exceptStrs.length == 0) {
+            info = findViewByText(text);
+        }
         if (info == null) {
             AccessibilityNodeInfo accessibilityNodeInfo = getRootInActiveWindow();
             if (accessibilityNodeInfo != null) {
-                info = findViewByTextTraverseAll(accessibilityNodeInfo, text);
+                info = findViewByTextTraverseAll(accessibilityNodeInfo, text, exceptStrs);
             }
         }
         return info;
     }
 
-    public AccessibilityNodeInfo findViewByTextTraverseAll(AccessibilityNodeInfo info, String text) {
+    public AccessibilityNodeInfo findViewByTextTraverseAll(AccessibilityNodeInfo info, String text, String... exceptStrs) {
         if (info == null) {
             return null;
         }
         if (info.getChildCount() == 0) {
             if (info.getText() != null && info.getText().toString().contains(text)) {
+                for (String str : exceptStrs) {
+                    if (info.getText().toString().contains(str)) {
+                        return null;
+                    }
+                }
                 return info;
             }
         } else {
             for (int i = 0; i < info.getChildCount(); i++) {
                 if (info.getChild(i) != null) {
-                    AccessibilityNodeInfo nodeInfo = findViewByTextTraverseAll(info.getChild(i), text);
+                    AccessibilityNodeInfo nodeInfo = findViewByTextTraverseAll(info.getChild(i), text, exceptStrs);
                     if (nodeInfo != null) {
                         return nodeInfo;
                     }
@@ -92,46 +114,20 @@ public class BaseAccessibilityService extends AccessibilityService {
         return null;
     }
 
-    public void recycle2(AccessibilityNodeInfo info, String text, String exceptStr) {
-        if (info.getChildCount() == 0) {
-            Log.i(TAG, "child widget----------------------------" + info.getClassName());
-            Log.i(TAG, "showDialog:" + info.canOpenPopup());
-            Log.i(TAG, "Text：" + info.getText());
-            Log.i(TAG, "windowId:" + info.getWindowId());
-            if (info.getText() != null && info.getText().toString().contains(text) && !info.getText().toString().contains(exceptStr)) {
-                performViewClick(info);
-                exitRecycle2 = true;
-            }
-        } else {
-            for (int i = 0; i < info.getChildCount(); i++) {
-                if (info.getChild(i) != null) {
-                    if (exitRecycle2) {
-                        break;
-                    }
-                    recycle2(info.getChild(i), text, exceptStr);
-                }
-            }
+    public void clickViewByTextEnhance(String text, String... exceptStrs) {
+        AccessibilityNodeInfo info = null;
+        if (exceptStrs.length == 0) {
+            info = findViewByText(text);
+        }
+        if (info == null) {
+            info = findViewByTextEnhance(text, exceptStrs);
+        }
+        if (info != null) {
+            performViewClick(info);
         }
     }
 
-    public void clickViewByTextEnhance(String text) {
-        AccessibilityNodeInfo accessibilityNodeInfo = getRootInActiveWindow();
-        if (accessibilityNodeInfo != null) {
-            recycle2(accessibilityNodeInfo, text, text);
-            exitRecycle2 = false;
-        }
-    }
-
-    public void clickViewByTextEnhance(String text, String exceptStr) {
-        AccessibilityNodeInfo accessibilityNodeInfo = getRootInActiveWindow();
-        if (accessibilityNodeInfo != null) {
-            recycle2(accessibilityNodeInfo, text, exceptStr);
-            exitRecycle2 = false;
-        }
-    }
-
-
-    public void scrollUpViewByText(String text) {
+    public void scrollViewByText(String text, Orientation orientation) {
         AccessibilityNodeInfo accessibilityNodeInfo = getRootInActiveWindow();
         if (accessibilityNodeInfo == null) {
             return;
@@ -142,7 +138,19 @@ public class BaseAccessibilityService extends AccessibilityService {
                 if (nodeInfo != null) {
                     while (nodeInfo != null) {
                         if (nodeInfo.isScrollable()) {
-                            nodeInfo.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+                            int action;
+                            switch (orientation) {
+                                case UP:
+                                    action = AccessibilityNodeInfo.ACTION_SCROLL_FORWARD;
+                                    break;
+                                case DOWN:
+                                    action = AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD;
+                                    break;
+                                default:
+                                    action = AccessibilityNodeInfo.ACTION_SCROLL_FORWARD;
+                                    break;
+                            }
+                            nodeInfo.performAction(action);
                             break;
                         }
                         nodeInfo = nodeInfo.getParent();
