@@ -35,7 +35,7 @@ public class AutoSignService extends BaseAccessibilityService {
         if (findViewByTextEnhance("允许") != null
                 && findViewByTextEnhance("拒绝") != null && findViewByTextEnhance("正在尝试") != null) {
             clickViewByTextEnhance("允许", "是否允许");
-            return;
+//            return;
         }
 
         if (QIANG_QIANG.equals(event.getPackageName())) {
@@ -88,7 +88,9 @@ public class AutoSignService extends BaseAccessibilityService {
                 return;
             }
 
-            AccessibilityNodeInfo info = findViewByTextEnhance("领取奖励");
+            //com.baozoumanhua.android:id/sign_in
+//            AccessibilityNodeInfo info = findViewByTextEnhance("领取奖励");
+            AccessibilityNodeInfo info = findViewByID("com.baozoumanhua.android:id/sign_in");
             if (info != null) {
                 performViewClick(info);
                 try {
@@ -117,12 +119,7 @@ public class AutoSignService extends BaseAccessibilityService {
                 }
                 if (findViewByTextEnhance("本月已签到") != null) {
                     clickViewByTextEnhance("签到", "本月已签到", "签到的");
-                    startActivity(JAN_DAN);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    startActivity(TAO_BAO);
 //                    finishSignBaoZou = true;
                 }
             }

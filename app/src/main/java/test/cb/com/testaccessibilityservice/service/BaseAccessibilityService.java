@@ -50,7 +50,7 @@ public class BaseAccessibilityService extends AccessibilityService {
         if (accessibilityNodeInfo == null) {
             return;
         }
-        recycle(accessibilityNodeInfo);
+        recycle(accessibilityNodeInfo, tag);
     }
 
     public void recycle(AccessibilityNodeInfo info, String... tag) {
