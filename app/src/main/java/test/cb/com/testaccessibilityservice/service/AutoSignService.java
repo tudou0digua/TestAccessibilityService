@@ -54,7 +54,7 @@ public class AutoSignService extends BaseAccessibilityService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                startActivity(HANG_LU_ZONG_HENG);
+                startActivity(BAO_ZOU);
             }
         } else if (HANG_LU_ZONG_HENG.equals(event.getPackageName())) {
             if (finishSignHangLvZongHeng) {
