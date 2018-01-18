@@ -54,7 +54,7 @@ public class AutoSignService extends BaseAccessibilityService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                startActivity(BAO_ZOU);
+                startActivity(HANG_LU_ZONG_HENG);
             }
         } else if (HANG_LU_ZONG_HENG.equals(event.getPackageName())) {
             if (finishSignHangLvZongHeng) {
@@ -71,7 +71,7 @@ public class AutoSignService extends BaseAccessibilityService {
                     e.printStackTrace();
                 }
                 finishSignHangLvZongHeng = true;
-                startActivity(BAO_ZOU);
+                startActivity(TAO_BAO);
             }
             //lotteryBtn
 //            clickViewByTextEnhance("抽   奖");
